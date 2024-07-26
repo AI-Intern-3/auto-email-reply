@@ -1,0 +1,44 @@
+# Evaluate the model on the testing dataset
+y_pred = model.predict(padded_X_test)
+y_pred_class = np.argmax(y_pred, axis=1)
+
+print("Accuracy:", accuracy_score(y_test, y_pred_class))
+print("Classification Report:")
+print(classification_report(y_test, y_pred_class))
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred_class))
+
+# Perform hyperparameter tuning using GridSearchCV
+param_grid = {
+    'batch_size': [16, 32, 64],
+    'epochs': [5, 10, 15],
+    'dropout': [0.1, 0.2, 0.3],
+    'recurrent_dropout': [0.1, 0.2, 0.3]
+}
+
+grid_search = GridSearchCV(model, param_grid, cv=5, scoring='accuracy')
+grid_search.fit(padded_X_train, y_train)
+
+print("Best Parameters:", grid_search.best_params_)
+print("Best Score:", grid_search.best_score_)
+
+# Perform hyperparameter tuning using RandomizedSearchCV
+random_search = RandomizedSearchCV(model, param_grid, cv=5, scoring='accuracy', n_iter=10)
+random_search.fit(padded_X_train, y_train)
+
+print("Best Parameters:", random_search.best_params_)
+print("Best Score:", random_search.best_score_)
+
+# Perform hyperparameter tuning using Bayesian Optimization
+def objective(params):
+    batch_size, epochs, dropout, recurrent_dropout = params
+    model.set_params(batch_size=int(batch_size), epochs=int(epochs), dropout=dropout, recurrent_dropout=recurrent_dropout)
+    score = model.fit(padded_X_train, y_train, epochs=int(epochs), batch_size=int(batch_size), verbose=0).history['accuracy'][-1]
+    return -score
+
+space = [Integer(16, 64, name='batch_size'), Integer(5, 15, name='epochs'), Real(0.1, 0.3, name='dropout'), Real(0.1, 0.3, name='recurrent_dropout')]
+
+res_gp = gp_minimize(objective, space, n_calls=10, random_state=42)
+
+print("Best Parameters:", res_gp.x)
+print("Best Score:", -res_gp.fun)
