@@ -1,0 +1,20 @@
+# Load the dataset
+df = pd.read_csv('email_data.csv')
+
+# Split the data into training and testing sets
+X = df['email_text']
+y = df['subject']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create a tokenizer to split the text into words
+tokenizer = Tokenizer(num_words=5000)
+tokenizer.fit_on_texts(X_train)
+
+X_train_sequences = tokenizer.texts_to_sequences(X_train)
+X_test_sequences = tokenizer.texts_to_sequences(X_test)
+
+# Pad the sequences to have the same length
+max_length = 200
+padded_X_train = pad_sequences(X_train_sequences, maxlen=max_length)
+padded_X_test = pad_sequences(X_test_sequences, maxlen=max_length)
