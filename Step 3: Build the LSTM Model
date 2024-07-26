@@ -1,0 +1,11 @@
+# Define the LSTM model
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Embedding(input_dim=5000, output_dim=128, input_length=max_length),
+    tf.keras.layers.LSTM(units=64, dropout=0.2, recurrent_dropout=0.2),
+    tf.keras.layers.Dense(64, activation='relu'),
+    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Dense(8, activation='softmax')
+])
+
+# Compile the model
+model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
