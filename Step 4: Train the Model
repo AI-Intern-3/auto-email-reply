@@ -1,0 +1,2 @@
+# Train the model
+history = model.fit(padded_X_train, y_train, epochs=10, batch_size=32, validation_data=(padded_X_test, y_test), verbose=2)
